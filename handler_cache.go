@@ -1,7 +1,6 @@
 package zdpgo_cache_http
 
 import (
-	"github.com/zhangdapeng520/zdpgo_log"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -17,7 +16,6 @@ import (
 
 type cacheHandler struct {
 	*Server
-	Log *zdpgo_log.Log
 }
 
 // ServeHTTP 实现ServeHTTP接口
@@ -38,7 +36,6 @@ func (h *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if len(b) != 0 {
 			e := h.Set(key, b)
 			if e != nil {
-				h.Log.Error("新增或修改缓存数失败", "error", e)
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}
@@ -49,7 +46,6 @@ func (h *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if m == http.MethodGet {
 		b, e := h.Get(key)
 		if e != nil {
-			h.Log.Error("根据键获取缓存的值失败", "error", e)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -65,7 +61,6 @@ func (h *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if m == http.MethodDelete {
 		e := h.Del(key)
 		if e != nil {
-			h.Log.Error("根据键删除值失败", "error", e)
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
@@ -79,6 +74,5 @@ func (h *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) cacheHandler() http.Handler {
 	return &cacheHandler{
 		Server: s,
-		Log:    s.Log,
 	}
 }

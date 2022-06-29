@@ -24,7 +24,7 @@ func main() {
 	// 获取缓存信息
 	client := cache.GetClient()
 	stat := client.GetStat()
-	cache.Log.Debug("获取缓存数据成功", "data", stat)
+	fmt.Println(stat)
 
 	// 设置键值对
 	flag := client.Set("username", "zhangdapeng520")
@@ -32,7 +32,7 @@ func main() {
 		panic("添加键值对失败")
 	}
 	stat = client.GetStat()
-	cache.Log.Debug("获取缓存数据成功", "data", stat)
+	fmt.Println(stat)
 
 	// 根据键获取值
 	username := client.Get("username")
@@ -41,5 +41,5 @@ func main() {
 	// 根据键删除值
 	client.Delete("username")
 	stat = client.GetStat()
-	cache.Log.Debug("获取缓存数据成功", "data", stat)
+	fmt.Println(stat)
 }

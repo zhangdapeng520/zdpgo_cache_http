@@ -10,14 +10,12 @@ package zdpgo_cache_http
 
 import (
 	"fmt"
-	"github.com/zhangdapeng520/zdpgo_log"
 	"github.com/zhangdapeng520/zdpgo_requests"
 	"net/http"
 )
 
 type Cache struct {
 	Config *Config
-	Log    *zdpgo_log.Log
 	Server *Server
 	Client *Client
 }
@@ -28,12 +26,6 @@ func New() *Cache {
 
 func NewWithConfig(config *Config) *Cache {
 	c := &Cache{}
-
-	// 日志
-	if config.LogFilePath == "" {
-		config.LogFilePath = "logs/zdpgo/zdpgo_cache_http.log"
-	}
-	c.Log = zdpgo_log.NewWithDebug(config.Debug, config.LogFilePath)
 
 	// 配置
 	if config.Server.Host == "" {
@@ -51,13 +43,11 @@ func NewWithConfig(config *Config) *Cache {
 	c.Config = config
 
 	// 服务
-	c.Server = NewServer(NewMemoryCache(), c.Log)
+	c.Server = NewServer(NewMemoryCache())
 
 	// 客户端
-	requests := zdpgo_requests.NewWithConfig(zdpgo_requests.Config{
-		Debug:       config.Debug,
-		LogFilePath: config.LogFilePath,
-		UserAgent:   "https://github.com/zhangdapeng520/zdpgo_cache_http",
+	requests := zdpgo_requests.NewWithConfig(&zdpgo_requests.Config{
+		UserAgent: "https://github.com/zhangdapeng520/zdpgo_cache_http",
 	})
 	c.Client = NewClient(requests, config)
 
@@ -71,11 +61,9 @@ func (c *Cache) Run() error {
 	http.Handle("/status", c.Server.statusHandler())
 
 	// 启动服务
-	c.Log.Debug("启动缓存服务", "port", c.Config.Server.Port)
 	address := fmt.Sprintf("%s:%d", c.Config.Server.Host, c.Config.Server.Port)
 	err := http.ListenAndServe(address, nil)
 	if err != nil {
-		c.Log.Error("启动缓存服务失败", "error", err)
 		return err
 	}
 	return nil
@@ -89,10 +77,8 @@ func (c *Cache) GetClient() *Client {
 	}
 
 	// 创建客户端
-	requests := zdpgo_requests.NewWithConfig(zdpgo_requests.Config{
-		Debug:       c.Config.Debug,
-		LogFilePath: c.Config.LogFilePath,
-		UserAgent:   "https://github.com/zhangdapeng520/zdpgo_cache_http",
+	requests := zdpgo_requests.NewWithConfig(&zdpgo_requests.Config{
+		UserAgent: "https://github.com/zhangdapeng520/zdpgo_cache_http",
 	})
 	c.Client = NewClient(requests, c.Config)
 
